@@ -1,12 +1,16 @@
 package com.example.ProjectTest.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DeveloperDTO {
     @JsonIgnore
     private Long id;
+    @JsonProperty("Name")
     private String firstName;
+    @JsonProperty("LastName")
     private String lastName;
+    @JsonProperty("postalCode")
     private String email;
 
     public DeveloperDTO(Long id, String firstName, String lastName, String email) {

@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/developer")
+@RequestMapping("/api/developer")
 public class DeveloperController {
     private DeveloperFacade developerFacade;
 
@@ -20,7 +20,7 @@ public class DeveloperController {
     public ResponseEntity<DeveloperDTO> getDeveloperById(@PathVariable Long id) {
         return new ResponseEntity<>(developerFacade.getDeveloperById(id), HttpStatus.OK);
     }
-    @PostMapping("/save")
+    @PostMapping("/add")
     public ResponseEntity<DeveloperDTO> save(@RequestBody DeveloperDTO developerDTO) {
         return new ResponseEntity<>(developerFacade.save(developerDTO), HttpStatus.CREATED);
     }

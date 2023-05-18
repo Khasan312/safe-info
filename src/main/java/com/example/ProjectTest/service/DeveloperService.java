@@ -2,51 +2,69 @@ package com.example.ProjectTest.service;
 
 import com.example.ProjectTest.dto.DeveloperDTO;
 import com.example.ProjectTest.model.Developer;
+import com.example.ProjectTest.repository.DeveloperJPARepository;
 import com.example.ProjectTest.repository.DeveloperRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class DeveloperService implements DeveloperRepository {
 
-    private JdbcTemplate jdbcTemplate;
-
-    public DeveloperService(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
-
-
+    @Autowired
+    private DeveloperJPARepository developerJPARepository;
 
     @Override
     public DeveloperDTO getDeveloper(Long id) {
-        String sqlQuery = "SELECT * FROM developers WHERE id = ?";
-        return jdbcTemplate.queryForObject(sqlQuery, new Object[]{id}, (rs, rowNum) -> {
-            return new DeveloperDTO(rs.getLong("id"),
-                    rs.getString("first_name"),
-                    rs.getString("last_name"),
-                    rs.getString("email"));
-        });
-    }
+        Optional<Developer> optionalDeveloper = developerJPARepository.findById(id);
+            if(optionalDeveloper.isPresent()){
+                Developer developer = optionalDeveloper.get();
 
-    public DeveloperDTO save(DeveloperDTO developer) {
-        String sqlQuery = "INSERT INTO developers (first_name, last_name, email) VALUES ( ?, ?, ?)";
-        jdbcTemplate.update(sqlQuery, developer.getFirstName(), developer.getLastName(), developer.getEmail());
-        return new DeveloperDTO(developer.getId(), developer.getFirstName(), developer.getLastName(), developer.getEmail());
+                //Create and return DeveloperDTO object
+                DeveloperDTO developerDTO = new DeveloperDTO(developer.getId(),
+                                                developer.getFirstName(),
+                                                developer.getLastName(),
+                                                developer.getEmail());
+                return developerDTO;
+            }
+            throw new RuntimeException("Developer not found");
+
+
     }
 
     @Override
-    public DeveloperDTO update(Long id,DeveloperDTO developer) {
-        String sqlQuery = "UPDATE developers SET first_name = ?, last_name = ?, email = ? WHERE id = ?";
-        jdbcTemplate.update(sqlQuery, developer.getFirstName(), developer.getLastName(), developer.getEmail(), id);
-        return new DeveloperDTO(developer.getId(),developer.getFirstName(), developer.getLastName(), developer.getEmail());
+    public DeveloperDTO save(DeveloperDTO developer) {
+        Developer developerEntity = new Developer();
+        developerEntity.setFirstName(developer.getFirstName());
+        developerEntity.setLastName(developer.getLastName());
+        developerEntity.setEmail(developer.getEmail());
+        Developer savedDeveloper = developerJPARepository.save(developerEntity);
+        DeveloperDTO developerDTO = new DeveloperDTO(savedDeveloper.getId(),
+                                                    savedDeveloper.getFirstName(),
+                                                    savedDeveloper.getLastName(),
+                                                    savedDeveloper.getEmail());
+        return developerDTO;
+    }
 
-
+    @Override
+    public DeveloperDTO update(Long id, DeveloperDTO developer) {
+        Developer developerEntity = new Developer();
+        developerEntity.setId(id);
+        developerEntity.setFirstName(developer.getFirstName());
+        developerEntity.setLastName(developer.getLastName());
+        developerEntity.setEmail(developer.getEmail());
+        Developer savedDeveloper = developerJPARepository.save(developerEntity);
+        DeveloperDTO developerDTO = new DeveloperDTO(savedDeveloper.getId(),
+                                                    savedDeveloper.getFirstName(),
+                                                    savedDeveloper.getLastName(),
+                                                    savedDeveloper.getEmail());
+        return developerDTO;
     }
 
     public void delete(Long id) {
-        String sqlQuery = "DELETE FROM developers WHERE id = ?";
-        jdbcTemplate.update(sqlQuery, id);
+        developerJPARepository.deleteById(id);
     }
 }
 
